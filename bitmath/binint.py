@@ -67,7 +67,6 @@ class BinInt(object):
 
     def add(self, other):
         assert self.size == other.size
-        adder_sum = 0
         adder_carry = 0
         for i in xrange(self.size):
             a_bit = self.get_bit(i)
