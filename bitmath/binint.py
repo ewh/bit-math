@@ -1,4 +1,4 @@
-from util import ShiftArray
+from util import ShiftArray, full_one_bit_adder
 
 
 class BinIntException(Exception):
@@ -62,19 +62,33 @@ class BinInt(object):
 
     ## Mathematical Operations
 
-    def negate(self, result=None):
+    def negate(self):
         pass
 
-    def add(self, other, result=None):
+    def add(self, other):
+        assert self.size == other.size
+        adder_sum = 0
+        adder_carry = 0
+        for i in xrange(self.size):
+            a_bit = self.get_bit(i)
+            b_bit = other.get_bit(i)
+            adder_sum, adder_carry = full_one_bit_adder(a_bit, b_bit, adder_carry)
+            self.set_bit(i, adder_sum)
+            print i, a_bit, b_bit, adder_sum, adder_carry
+
+    def subtract(self, other):
         pass
 
-    def subtract(self, other, result=None):
+    def multiply(self, other):
         pass
 
-    def multiply(self, other, result=None):
+    def divide(self, other):
         pass
 
-    def divide(self, other, result=None):
+    def increment(self, other):
+        pass
+
+    def decrement(self, other):
         pass
 
     ## Bit Logic Operations
@@ -83,13 +97,13 @@ class BinInt(object):
         for i in xrange(self.size):
             self.set_bit(i, int(not self.get_bit(i)))
 
-    def bit_and(self, other, result=None):
+    def bit_and(self, other):
         pass
 
-    def bit_or(self, other, result=None):
+    def bit_or(self, other):
         pass
 
-    def xor(self, other, result=None):
+    def xor(self, other):
         pass
 
     def left_shift(self, n=1):
