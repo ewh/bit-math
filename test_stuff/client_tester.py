@@ -28,5 +28,19 @@ def main():
     print i1
     print i2
 
+    i3 = BinInt(8)
+    i3.bit_on(0)
+    i3.bit_on(1)
+    i4 = BinInt(8)
+    i4.bit_on(1)
+    i4.bit_on(2)
+    i4.bit_on(4)
+    i5 = i3.clone()
+    print
+    print i3
+    print i4
+    i5.add(i4)
+    print i5
+
 
 main()
