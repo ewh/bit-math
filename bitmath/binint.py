@@ -76,7 +76,7 @@ class BinInt(object):
             b_bit = other.get_bit(i)
             adder_sum, adder_carry = full_one_bit_adder(a_bit, b_bit, adder_carry)
             self.set_bit(i, adder_sum)
-            print i, a_bit, b_bit, adder_sum, adder_carry
+            # print i, a_bit, b_bit, adder_sum, adder_carry
 
     def subtract(self, other):
         raise NotImplementedError
