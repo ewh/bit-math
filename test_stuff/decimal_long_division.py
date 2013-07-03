@@ -2,7 +2,7 @@
 ## See the file license.txt for copying permission.
 
 import math
-import stop_watch
+import stopwatch
 
 
 def find_power(n, d):
@@ -65,7 +65,7 @@ def run_test_loop(dividend_max, divisor_max):
         # result_string = '%5d %5d' % (q1, r1)
         # print '%10s: %s' % (div_string, result_string)
 
-    time_stamper = stop_watch.StopWatch()
+    time_stamper = stopwatch.StopWatch()
     time_stamper.record_time_stamp()
 
     total_tests = 0
