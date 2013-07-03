@@ -49,3 +49,10 @@ class ShiftArray(object):
         for i in xrange(self.size):
             sio.write(str(self.get_value(i)))
         return sio.getvalue()
+
+
+def full_one_bit_adder(a, b, c):
+    sum_out = ((b ^ c) & (not a)) | ((not (b ^ c)) & a)
+    c_out = ((a & b) & (not c)) | ((a | b) & c)
+    # c_out = a & b
+    return sum_out, c_out
