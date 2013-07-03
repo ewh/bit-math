@@ -63,7 +63,7 @@ class BinInt(object):
     ## Mathematical Operations
 
     def negate(self):
-        pass
+        raise NotImplementedError
 
     def add(self, other):
         assert self.size == other.size
@@ -76,19 +76,19 @@ class BinInt(object):
             print i, a_bit, b_bit, adder_sum, adder_carry
 
     def subtract(self, other):
-        pass
+        raise NotImplementedError
 
     def multiply(self, other):
-        pass
+        raise NotImplementedError
 
     def divide(self, other):
-        pass
+        raise NotImplementedError
 
     def increment(self, other):
-        pass
+        raise NotImplementedError
 
     def decrement(self, other):
-        pass
+        raise NotImplementedError
 
     ## Bit Logic Operations
 
@@ -97,13 +97,13 @@ class BinInt(object):
             self.set_bit(i, int(not self.get_bit(i)))
 
     def bit_and(self, other):
-        pass
+        raise NotImplementedError
 
     def bit_or(self, other):
-        pass
+        raise NotImplementedError
 
     def xor(self, other):
-        pass
+        raise NotImplementedError
 
     def left_shift(self, n=1):
         self.array.left_shift(n)
