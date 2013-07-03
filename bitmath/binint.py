@@ -5,9 +5,18 @@ class BinIntException(Exception):
     pass
 
 
+class MasterContext(object):
+    pass
+
+
+class Context(object):
+    pass
+
+
 class BinInt(object):
-    def __init__(self, n=None):
+    def __init__(self, n=None, context=None):
         self._array = ShiftArray(n) if n else None
+        self._context = context
 
     @property
     def size(self):
@@ -44,7 +53,7 @@ class BinInt(object):
             self.bit_off(i)
 
     def clone(self):
-        new_binint = BinInt()
+        new_binint = BinInt(n=None, context=self._context)
         new_binint._array = self._array.clone()
         return new_binint
 
