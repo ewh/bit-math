@@ -45,5 +45,12 @@ def main():
     i5.add(i4)
     print i5
 
+    print
+    print 'Test zero:'
+    print i2, i2.is_zero()
+    print i3, i3.is_zero()
+    print i4, i4.is_zero()
+    print i5, i5.is_zero()
+
 
 main()

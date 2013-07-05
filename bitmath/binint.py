@@ -84,6 +84,14 @@ class BinInt(object):
     def negate(self):
         raise NotImplementedError
 
+    def is_zero(self):
+        zero_result = True
+        for i in xrange(self.size):
+            if self.get_bit(i) == 1:
+                zero_result = False
+                break
+        return zero_result
+
     def add(self, other):
         assert self.size == other.size
         adder_carry = 0
