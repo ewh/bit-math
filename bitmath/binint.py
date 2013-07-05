@@ -8,18 +8,34 @@ class BinIntException(Exception):
     pass
 
 
-class MasterContext(object):
-    pass
+class Environment(object):
+    def __init__(self):
+        self.contexts = {}
+
+    def new_int(self, bit_depth, signed):
+        pass
+
+    def get_context(self, bit_depth, signed):
+        context_key = (bit_depth, signed)
+        if not self.contexts.has_key(context_key):
+            new_context = Context(bit_depth, signed)
+            self.contexts[context_key] = new_context
+
+
+master_context = Environment()
 
 
 class Context(object):
-    pass
+    def __init__(self, bit_depth, signed):
+        self.bit_depth = bit_depth
+        self.signed = signed
 
 
 class BinInt(object):
-    def __init__(self, n=None, context=None):
+    def __init__(self, n=None, context=None, signed=False):
         self._array = ShiftArray(n) if n else None
         self._context = context
+        self._signed = signed
 
     @property
     def size(self):
