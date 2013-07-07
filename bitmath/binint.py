@@ -17,7 +17,7 @@ class Environment(object):
 
     def get_context(self, bit_depth, signed=False):
         context_key = (bit_depth, signed)
-        if not self.contexts.has_key(context_key):
+        if not context_key in self.contexts:
             new_context = Context(bit_depth, signed)
             self.contexts[context_key] = new_context
 
@@ -31,6 +31,7 @@ class Context(object):
         self.signed = signed
         self._unit = self.new_unit()
         self._neg_unit = self.new_unit(negative=True)
+        self.carry = 0
 
     @property
     def unit(self):
@@ -41,21 +42,20 @@ class Context(object):
         return self._neg_unit
 
     def new_int(self):
-        return BinInt(n=self.bit_depth, context=self, signed=self.signed)
+        return BinInt(context=self)
 
     def new_unit(self, negative=False):
         x = self.new_int()
         x.bit_on(0)
         if negative:
-            x.negate()
+            x.negate_inplace()
         return x
 
 
 class BinInt(object):
-    def __init__(self, n=None, context=None, signed=False):
-        self._array = ShiftArray(n) if n else None
+    def __init__(self, context=None, bit_array=None):
         self._context = context
-        self._signed = signed
+        self._array = bit_array if bit_array else ShiftArray(self.context.bit_depth)
 
     @property
     def size(self):
@@ -73,10 +73,16 @@ class BinInt(object):
     def context(self):
         return self._context
 
+    def __str__(self):
+        return str(self.array)
+
     ## Basic Operations
 
     def get_bit(self, i):
         return self.array.get_value(self.max_index - i)
+
+    def get_bit_inverted(self, i):
+        return int(not self.array.get_value(self.max_index - i))
 
     def set_bit(self, i, value):
         self.array.set_value(self.max_index - i, value)
@@ -95,19 +101,26 @@ class BinInt(object):
         for i in xrange(self.size):
             self.bit_off(i)
 
-    def clone(self):
-        new_binint = BinInt(n=None, context=self._context)
-        new_binint._array = self._array.clone()
-        return new_binint
+    ## Clone/Copy Operations
 
-    def __str__(self):
-        return str(self.array)
+    def clone(self):
+        return BinInt.copy_primitive_operation(self)
+        # return BinInt(context=self._context, bit_array=self._array.clone())
+
+    def copy_from(self, source):
+        BinInt.copy_primitive_operation(source, self)
 
     ## Mathematical Operations
 
-    def negate(self):
-        self.invert()
-        self.add(self.context.unit)
+    def is_negative(self):
+        return self.get_bit(self.max_index) == 1
+
+    def negate(self, output=None):
+        if output is None:
+            output = self.clone()
+        output.invert_inplace()
+        output.increment_inplace()
+        return output
 
     def is_zero(self):
         zero_result = True
@@ -117,48 +130,107 @@ class BinInt(object):
                 break
         return zero_result
 
-    def add(self, other):
-        assert self.size == other.size
-        adder_carry = 0
-        for i in xrange(self.size):
-            a_bit = self.get_bit(i)
-            b_bit = other.get_bit(i)
-            adder_sum, adder_carry = full_one_bit_adder(a_bit, b_bit, adder_carry)
-            self.set_bit(i, adder_sum)
-            # print i, a_bit, b_bit, adder_sum, adder_carry
+    def add(self, other, output=None):
+        return BinInt.add_primitive_operation(self, other, output=output)
 
-    def subtract(self, other):
+    def subtract(self, other, output=None):
+        return BinInt.add_primitive_operation(self, other, output=output, do_subtract=True)
+
+    def multiply(self, other, output=None):
         raise NotImplementedError
 
-    def multiply(self, other):
+    def divide(self, other, output=None):
         raise NotImplementedError
 
-    def divide(self, other):
-        raise NotImplementedError
+    def increment(self, n=1, output=None):
+        if output is None:
+            output = self.clone()
+        for i in xrange(n):
+            output.add_inplace(self.context.unit)
+        return output
 
-    def increment(self):
-        self.add(self.context.unit)
+    def decrement(self, n=1, output=None):
+        if output is None:
+            output = self.clone()
+        for i in xrange(n):
+            output.add_inplace(self.context.negative_unit)
+        return output
 
-    def decrement(self):
-        self.add(self.context.negative_unit)
+    def abs(self, output=None):
+        if output is None:
+            output = self.clone()
+        if output.is_negative():
+            output.negate_inplace()
+        return output
 
     ## Bit Logic Operations
 
-    def invert(self):
+    def invert(self, output=None):
+        if output is None:
+            output = self.clone()
         for i in xrange(self.size):
-            self.set_bit(i, int(not self.get_bit(i)))
+            output.set_bit(i, self.get_bit_inverted(i))
+        return output
 
-    def bit_and(self, other):
+    def bit_and(self, other, output=None):
         raise NotImplementedError
 
-    def bit_or(self, other):
+    def bit_or(self, other, output=None):
         raise NotImplementedError
 
-    def xor(self, other):
+    def xor(self, other, output=None):
         raise NotImplementedError
 
-    def left_shift(self, n=1):
+    def left_shift(self, n=1, output=None):
         self.array.left_shift(n)
 
-    def right_shift(self, n=1):
+    def right_shift(self, n=1, output=None):
         self.array.right_shift(n)
+
+    ## In-place Helper Methods
+
+    def invert_inplace(self):
+        return self.invert(output=self)
+
+    def negate_inplace(self):
+        return self.negate(output=self)
+
+    def increment_inplace(self, n=1):
+        return self.increment(n=n, output=self)
+
+    def decrement_inplace(self, n=1):
+        return self.decrement(n=n, output=self)
+
+    def add_inplace(self, other):
+        return self.add(other, output=self)
+
+    def abs_inplace(self):
+        return self.abs(output=self)
+
+    ## Static Helper Methods
+
+    @staticmethod
+    def copy_primitive_operation(source, target=None):
+        if target is None:
+            target = BinInt(context=source.context, bit_array=source.array.clone())
+        else:
+            target._context = source.context
+            target._array = source.array.clone()
+        return target
+
+    @staticmethod
+    def add_primitive_operation(x, y, output=None, do_subtract=False):
+        assert x.size == y.size
+        if output is None:
+            output = x.context.new_int()
+        # output.all_off()
+        adder_carry = 0
+        for i in xrange(x.size):
+            a_bit = x.get_bit(i)
+            b_bit = y.get_bit(i) if not do_subtract else y.get_bit_inverted(i)
+            adder_sum, adder_carry = full_one_bit_adder(a_bit, b_bit, adder_carry)
+            output.set_bit(i, adder_sum)
+        if do_subtract:
+            BinInt.add_primitive_operation(output, x.context.unit, output)
+        x.context.carry = adder_carry
+        return output
