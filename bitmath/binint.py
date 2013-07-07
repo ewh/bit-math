@@ -8,18 +8,54 @@ class BinIntException(Exception):
     pass
 
 
-class MasterContext(object):
-    pass
+class Environment(object):
+    def __init__(self):
+        self.contexts = {}
+
+    def new_int(self, bit_depth, signed):
+        pass
+
+    def get_context(self, bit_depth, signed=False):
+        context_key = (bit_depth, signed)
+        if not self.contexts.has_key(context_key):
+            new_context = Context(bit_depth, signed)
+            self.contexts[context_key] = new_context
+
+
+master_context = Environment()
 
 
 class Context(object):
-    pass
+    def __init__(self, bit_depth, signed=False):
+        self.bit_depth = bit_depth
+        self.signed = signed
+        self._unit = self.new_unit()
+        self._neg_unit = self.new_unit(negative=True)
+
+    @property
+    def unit(self):
+        return self._unit
+
+    @property
+    def negative_unit(self):
+        return self._neg_unit
+
+    def new_int(self):
+        return BinInt(n=self.bit_depth, context=self, signed=self.signed)
+
+    def new_unit(self, negative=False):
+        x = self.new_int()
+        x.bit_on(0)
+        if negative:
+            x.negate()
+        return x
 
 
 class BinInt(object):
-    def __init__(self, n=None, context=None):
+    def __init__(self, n=None, context=None, signed=False):
         self._array = ShiftArray(n) if n else None
         self._context = context
+        self._signed = signed
 
     @property
     def size(self):
@@ -32,6 +68,10 @@ class BinInt(object):
     @property
     def max_index(self):
         return self.size - 1
+
+    @property
+    def context(self):
+        return self._context
 
     ## Basic Operations
 
@@ -66,7 +106,16 @@ class BinInt(object):
     ## Mathematical Operations
 
     def negate(self):
-        raise NotImplementedError
+        self.invert()
+        self.add(self.context.unit)
+
+    def is_zero(self):
+        zero_result = True
+        for i in xrange(self.size):
+            if self.get_bit(i) == 1:
+                zero_result = False
+                break
+        return zero_result
 
     def add(self, other):
         assert self.size == other.size
@@ -87,11 +136,11 @@ class BinInt(object):
     def divide(self, other):
         raise NotImplementedError
 
-    def increment(self, other):
-        raise NotImplementedError
+    def increment(self):
+        self.add(self.context.unit)
 
-    def decrement(self, other):
-        raise NotImplementedError
+    def decrement(self):
+        self.add(self.context.negative_unit)
 
     ## Bit Logic Operations
 
