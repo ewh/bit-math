@@ -18,15 +18,17 @@ class Environment(object):
     def get_context(self, bit_depth, signed=False):
         context_key = (bit_depth, signed)
         if not context_key in self.contexts:
-            new_context = Context(bit_depth, signed)
+            new_context = Context(self, bit_depth, signed)
             self.contexts[context_key] = new_context
+        return self.contexts[context_key]
 
 
 master_context = Environment()
 
 
 class Context(object):
-    def __init__(self, bit_depth, signed=False):
+    def __init__(self, environment, bit_depth, signed=False):
+        self.environment = environment
         self.bit_depth = bit_depth
         self.signed = signed
         self._unit = self.new_unit()
@@ -244,7 +246,6 @@ class BinInt(object):
         assert x.size == y.size
         if output is None:
             output = x.context.new_int()
-        # output.all_off()
         adder_carry = 0
         for i in xrange(x.size):
             a_bit = x.get_bit(i)

@@ -54,10 +54,9 @@ def random_tests():
 
 
 def environment_tests():
-    # env = Environment()
-    # print env
+    env = Environment()
 
-    ctx = Context(bit_depth=8)
+    ctx = env.get_context(8)
     x = ctx.new_int()
     x.bit_on(3)
     x.bit_on(1)
