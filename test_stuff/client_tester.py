@@ -1,10 +1,10 @@
 ## Copyright (c) 2013 Edward Weston Hunter
 ## See the file license.txt for copying permission.
 
-from bitmath import BinInt
+from bitmath import BinInt, Context, Environment
 
 
-def main():
+def random_tests():
     i1 = BinInt(8)
     i1.bit_on(1)
     i1.bit_on(5)
@@ -52,5 +52,25 @@ def main():
     print i4, i4.is_zero()
     print i5, i5.is_zero()
 
+
+def environment_tests():
+    # env = Environment()
+    # print env
+
+    ctx = Context(bit_depth=8)
+    x = ctx.new_int()
+    x.bit_on(3)
+    x.bit_on(1)
+    print x
+    x.increment()
+    print x
+    x.decrement()
+    x.decrement()
+    print x
+
+
+def main():
+    # random_tests()
+    environment_tests()
 
 main()
