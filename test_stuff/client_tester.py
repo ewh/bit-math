@@ -62,11 +62,30 @@ def environment_tests():
     x.bit_on(3)
     x.bit_on(1)
     print x
-    x.increment()
+    print x.increment_inplace()
     print x
-    x.decrement()
-    x.decrement()
+    x.decrement_inplace(2)
     print x
+    y = x.clone()
+    y.bit_off(3)
+    print y
+    y.copy_from(x)
+    print y
+    print y.invert()
+    print y.negate()
+
+    x.increment_inplace()
+    z = ctx.new_int()
+    z.bit_on(1)
+    z.bit_on(0)
+    print x, z
+    print x.subtract(z)
+    t = z.subtract(x)
+    print t, t.is_negative(), t.abs()
+
+    x_incremented = x.increment()
+    print x, x_incremented, x.logic_or(x_incremented),\
+        x.logic_and(x_incremented), x.logic_xor(x_incremented)
 
 
 def main():
