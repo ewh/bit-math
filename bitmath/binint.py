@@ -106,7 +106,8 @@ class BinInt(object):
     ## Mathematical Operations
 
     def negate(self):
-        raise NotImplementedError
+        self.invert()
+        self.add(self.context.unit)
 
     def is_zero(self):
         zero_result = True
@@ -135,11 +136,11 @@ class BinInt(object):
     def divide(self, other):
         raise NotImplementedError
 
-    def increment(self, other):
-        raise NotImplementedError
+    def increment(self):
+        self.add(self.context.unit)
 
-    def decrement(self, other):
-        raise NotImplementedError
+    def decrement(self):
+        self.add(self.context.negative_unit)
 
     ## Bit Logic Operations
 
