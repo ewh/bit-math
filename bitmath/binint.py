@@ -172,14 +172,26 @@ class BinInt(object):
             output.set_bit(i, self.get_bit_inverted(i))
         return output
 
-    def bit_and(self, other, output=None):
-        raise NotImplementedError
+    def logic_and(self, other, output=None):
+        if output is None:
+            output = self.clone()
+        for i in xrange(self.size):
+            output.set_bit(i, output.get_bit(i) & other.get_bit(i))
+        return output
 
-    def bit_or(self, other, output=None):
-        raise NotImplementedError
+    def logic_or(self, other, output=None):
+        if output is None:
+            output = self.clone()
+        for i in xrange(self.size):
+            output.set_bit(i, output.get_bit(i) | other.get_bit(i))
+        return output
 
-    def xor(self, other, output=None):
-        raise NotImplementedError
+    def logic_xor(self, other, output=None):
+        if output is None:
+            output = self.clone()
+        for i in xrange(self.size):
+            output.set_bit(i, output.get_bit(i) ^ other.get_bit(i))
+        return output
 
     def left_shift(self, n=1, output=None):
         self.array.left_shift(n)
@@ -206,6 +218,15 @@ class BinInt(object):
 
     def abs_inplace(self):
         return self.abs(output=self)
+
+    def logic_and_inplace(self, other):
+        return self.logic_and(other, output=self)
+
+    def logic_or_inplace(self, other):
+        return self.logic_or(other, output=self)
+
+    def logic_xor_inplace(self, other):
+        return self.logic_xor(other, output=self)
 
     ## Static Helper Methods
 

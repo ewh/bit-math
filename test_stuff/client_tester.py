@@ -83,6 +83,10 @@ def environment_tests():
     t = z.subtract(x)
     print t, t.is_negative(), t.abs()
 
+    x_incremented = x.increment()
+    print x, x_incremented, x.logic_or(x_incremented),\
+        x.logic_and(x_incremented), x.logic_xor(x_incremented)
+
 
 def main():
     # random_tests()
