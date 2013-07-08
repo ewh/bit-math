@@ -12,6 +12,9 @@ class Environment(object):
     def __init__(self):
         self.contexts = {}
 
+    def __str__(self):
+        return 'ENV: %s' % map(str, self.contexts.values())
+
     def new_int(self, bit_depth, signed):
         pass
 
@@ -42,6 +45,9 @@ class Context(object):
     @property
     def negative_unit(self):
         return self._neg_unit
+
+    def __str__(self):
+        return 'CTX:%s-%s' % (self.bit_depth, self.signed)
 
     def new_int(self):
         return BinInt(context=self)
