@@ -56,25 +56,26 @@ def random_tests():
 def environment_tests():
     env = Environment()
 
-    ctx = env.get_context(8)
-    x = ctx.new_int()
+    ctx8 = env.get_context(8)
+    env.get_context(16)
+
+    x = ctx8.new_int()
     x.bit_on(3)
     x.bit_on(1)
     print x
     print x.increment_inplace()
-    print x
-    x.decrement_inplace(2)
-    print x
+    print x.decrement_inplace(2)
     y = x.clone()
-    y.bit_off(3)
+    y.bit_on(5)
     print y
-    y.copy_from(x)
-    print y
+    print y.copy_from(x)
     print y.invert()
     print y.negate()
+    print y
+    print
 
     x.increment_inplace()
-    z = ctx.new_int()
+    z = ctx8.new_int()
     z.bit_on(1)
     z.bit_on(0)
     print x, z
@@ -86,9 +87,66 @@ def environment_tests():
     print x, x_incremented, x.logic_or(x_incremented),\
         x.logic_and(x_incremented), x.logic_xor(x_incremented)
 
+    print
+    print t
+    t2 = t.clone(11)
+    print t2
+    t2.right_shift()
+    print t2
+    t2.left_shift()
+    print t2
+    t2.left_shift(4)
+    print t2
+    t2.right_shift()
+    print t2
+    t2.right_shift()
+    print t2
+    t3 = t.clone(5)
+    print t3
+    t3.right_shift()
+    print t3
+    t3.left_shift()
+    print t3
+    print env
+
+
+def dump_shift_array(msg_str, array):
+    if msg_str == 'l':
+        array.left_shift()
+    elif msg_str == 'r':
+        array.right_shift()
+    print msg_str, array, array.zero_index, array.array
+
+
+def shift_array_tests():
+    from bitmath.util import ShiftArray
+    a = ShiftArray(8)
+    a.set_value(0, 8)
+    a.set_value(1, 1)
+    a.set_value(3, 2)
+    a.set_value(5, 3)
+    a.set_value(7, 4)
+    dump_shift_array('a', a)
+    dump_shift_array('l', a)
+    dump_shift_array('l', a)
+    dump_shift_array('r', a)
+    dump_shift_array('r', a)
+    dump_shift_array('r', a)
+    dump_shift_array('r', a)
+    dump_shift_array('r', a)
+    dump_shift_array('l', a)
+    dump_shift_array('l', a)
+    dump_shift_array('l', a)
+    dump_shift_array('l', a)
+    dump_shift_array('l', a)
+    dump_shift_array('l', a)
+    dump_shift_array('r', a)
+    dump_shift_array('r', a)
+
 
 def main():
     # random_tests()
     environment_tests()
+    # shift_array_tests()
 
 main()
