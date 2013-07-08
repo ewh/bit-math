@@ -111,12 +111,13 @@ class BinInt(object):
 
     ## Clone/Copy Operations
 
-    def clone(self):
-        return BinInt.copy_primitive_operation(self)
-        # return BinInt(context=self._context, bit_array=self._array.clone())
+    def clone(self, bit_depth=None, signed=None):
+        return BinInt.copy_primitive_operation(self,
+            bit_depth=bit_depth, signed=signed)
 
-    def copy_from(self, source):
-        BinInt.copy_primitive_operation(source, self)
+    def copy_from(self, source, bit_depth=None, signed=None):
+        return BinInt.copy_primitive_operation(source, self,
+            bit_depth=bit_depth, signed=signed)
 
     ## Mathematical Operations
 
@@ -239,12 +240,18 @@ class BinInt(object):
     ## Static Helper Methods
 
     @staticmethod
-    def copy_primitive_operation(source, target=None):
+    def copy_primitive_operation(source, target=None, bit_depth=None, signed=None):
+        if bit_depth is None:
+            bit_depth = source.context.bit_depth
+        if signed is None:
+            signed = source.context.signed
+        target_context = source.context.environment.get_context(bit_depth, signed)
         if target is None:
-            target = BinInt(context=source.context, bit_array=source.array.clone())
+            target = BinInt(context=target_context,
+                bit_array=source.array.clone(new_length=bit_depth))
         else:
-            target._context = source.context
-            target._array = source.array.clone()
+            target._context = target_context
+            target._array = source.array.clone(new_length=bit_depth)
         return target
 
     @staticmethod
