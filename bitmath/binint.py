@@ -87,13 +87,13 @@ class BinInt(object):
     ## Basic Operations
 
     def get_bit(self, i):
-        return self.array.get_value(self.max_index - i)
+        return self.array.get_value(i)
 
     def get_bit_inverted(self, i):
-        return int(not self.array.get_value(self.max_index - i))
+        return int(not self.array.get_value(i))
 
     def set_bit(self, i, value):
-        self.array.set_value(self.max_index - i, value)
+        self.array.set_value(i, value)
 
     def bit_on(self, i):
         self.set_bit(i, 1)
