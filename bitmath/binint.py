@@ -12,21 +12,26 @@ class Environment(object):
     def __init__(self):
         self.contexts = {}
 
+    def __str__(self):
+        return 'ENV: %s' % map(str, self.contexts.values())
+
     def new_int(self, bit_depth, signed):
         pass
 
     def get_context(self, bit_depth, signed=False):
         context_key = (bit_depth, signed)
         if not context_key in self.contexts:
-            new_context = Context(bit_depth, signed)
+            new_context = Context(self, bit_depth, signed)
             self.contexts[context_key] = new_context
+        return self.contexts[context_key]
 
 
 master_context = Environment()
 
 
 class Context(object):
-    def __init__(self, bit_depth, signed=False):
+    def __init__(self, environment, bit_depth, signed=False):
+        self.environment = environment
         self.bit_depth = bit_depth
         self.signed = signed
         self._unit = self.new_unit()
@@ -40,6 +45,9 @@ class Context(object):
     @property
     def negative_unit(self):
         return self._neg_unit
+
+    def __str__(self):
+        return 'CTX:%s-%s' % (self.bit_depth, self.signed)
 
     def new_int(self):
         return BinInt(context=self)
@@ -79,13 +87,13 @@ class BinInt(object):
     ## Basic Operations
 
     def get_bit(self, i):
-        return self.array.get_value(self.max_index - i)
+        return self.array.get_value(i)
 
     def get_bit_inverted(self, i):
-        return int(not self.array.get_value(self.max_index - i))
+        return int(not self.array.get_value(i))
 
     def set_bit(self, i, value):
-        self.array.set_value(self.max_index - i, value)
+        self.array.set_value(i, value)
 
     def bit_on(self, i):
         self.set_bit(i, 1)
@@ -103,12 +111,13 @@ class BinInt(object):
 
     ## Clone/Copy Operations
 
-    def clone(self):
-        return BinInt.copy_primitive_operation(self)
-        # return BinInt(context=self._context, bit_array=self._array.clone())
+    def clone(self, bit_depth=None, signed=None):
+        return BinInt.copy_primitive_operation(self,
+            bit_depth=bit_depth, signed=signed)
 
-    def copy_from(self, source):
-        BinInt.copy_primitive_operation(source, self)
+    def copy_from(self, source, bit_depth=None, signed=None):
+        return BinInt.copy_primitive_operation(source, self,
+            bit_depth=bit_depth, signed=signed)
 
     ## Mathematical Operations
 
@@ -231,12 +240,18 @@ class BinInt(object):
     ## Static Helper Methods
 
     @staticmethod
-    def copy_primitive_operation(source, target=None):
+    def copy_primitive_operation(source, target=None, bit_depth=None, signed=None):
+        if bit_depth is None:
+            bit_depth = source.context.bit_depth
+        if signed is None:
+            signed = source.context.signed
+        target_context = source.context.environment.get_context(bit_depth, signed)
         if target is None:
-            target = BinInt(context=source.context, bit_array=source.array.clone())
+            target = BinInt(context=target_context,
+                bit_array=source.array.clone(new_length=bit_depth))
         else:
-            target._context = source.context
-            target._array = source.array.clone()
+            target._context = target_context
+            target._array = source.array.clone(new_length=bit_depth)
         return target
 
     @staticmethod
@@ -244,7 +259,6 @@ class BinInt(object):
         assert x.size == y.size
         if output is None:
             output = x.context.new_int()
-        # output.all_off()
         adder_carry = 0
         for i in xrange(x.size):
             a_bit = x.get_bit(i)
