@@ -47,7 +47,8 @@ class Context(object):
         return self._neg_unit
 
     def __str__(self):
-        return 'CTX:%s-%s' % (self.bit_depth, self.signed)
+        signed_string = 'SIGNED' if self.signed else 'UNSIGNED'
+        return 'CTX:%s-%s' % (self.bit_depth, signed_string)
 
     def new_int(self):
         return BinInt(context=self)
